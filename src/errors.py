@@ -1,5 +1,6 @@
 from enum import Enum
-class ErrorCode(Enum):
+class ERRNO(Enum):
+   E_HELP = 0
    E_OS = 1
    E_IO = 2
    E_FOP = 3
