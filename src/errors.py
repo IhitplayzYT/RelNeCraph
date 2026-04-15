@@ -5,7 +5,8 @@ class ERRNO(Enum):
    E_IO = 2
    E_FOP = 3
    E_LIB = 4
-   E_FMT = 5
+   E_FLOAD = 5
+   E_FMT = 6
 
 class RelNeException(Exception):
     def __init__(self,message: str,errorcode: ErrorCode):

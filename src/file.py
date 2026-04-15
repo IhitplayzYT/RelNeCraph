@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 import sys
 import os
+from io import StringIO
 from docx import Document
 from PyPDF2 import PdfReader
 from enum import Enum
@@ -15,12 +16,13 @@ class FMT(Enum):
     HTML=5
     DOCS=6
     LOG=7
-    SQL=7
+    SQL=8
+    RAW=9
 
 
 supported_fmts = [".csv",".xls",".xlsx",".pdf",".txt",".html",".docx",".doc",".log",".sql"]
 seperator = "<| . |>"
-def read_file(path: str):
+def read_file(path: str) -> tuple[str | None, None | Exception, FMT]:
     fmt = path.split(".")[-1]
     known = False
     ret = ""
@@ -44,11 +46,22 @@ def read_file(path: str):
         ret = pd.read_csv(path,delim=",")
         if not ret:
             return (None,errors.RelNeException(f"Unable to parse as {fmt[1:]} file",errors.ERRNO.E_FMT),FMT.NULL) 
+        buf = StringIO()
+        
         return (ret,None,FMT.CSV)
     elif fmt == ".xls" or fmt == ".xlsx": 
-        ret = pd.read_excel(path,delim=",")
+        data = pd.ExcelFile(path)
         if not ret:
             return (None,errors.RelNeException(f"Unable to parse as {fmt[1:]} file",errors.ERRNO.E_FMT),FMT.NULL) 
+        buf = StringIO()
+        ret += "{"
+        for sheet in data.sheet_names:
+            df = xls.parse(sheet)
+            buf = StringIO()
+            df.to_csv(buf, index=False)
+            ret += f"{{Sheet{sheet}{seperator}" + buf.getvalue() + f"}},"
+        ret=ret[:-1]
+        ret += "}"
         return (ret,None,FMT.XLS)
     elif fmt == ".pdf":
         pass

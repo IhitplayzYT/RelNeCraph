@@ -14,7 +14,9 @@ class CLARGS:
        self.dbg = False
        self.files = []
        self.MODE = 0
+       self.raw = []
        self.DB = ""
+
     def Parse():
         args = sys.argv[1:] 
         for i in args:
@@ -29,6 +31,12 @@ class CLARGS:
             elif i == "-h" or i == "--help":
                 print(DBG_STR)
                 sys.exit(0)
+            elif i.startswith("-r="):
+                i = i[3:]
+                self.raw.append(i)
+            elif i.startswith("--raw="):
+                i = i[5:]
+                self.raw.append(i)
             else:
                 if any(i.endswith(k) for k in supported_fmts):
                     self.files.append(i)
@@ -38,7 +46,10 @@ class CLARGS:
      
 
             
-                
+def preproc(ftuple):  
+    #TODO:
+    #FIXME:
+    pass 
                 
 
     
