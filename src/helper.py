@@ -1,6 +1,8 @@
 import sys
 import os
 from file import supported_fmts
+import re
+from enum import Enum
 
 DBG_STR = f""
 
@@ -15,7 +17,7 @@ class CLARGS:
        self.files = []
        self.MODE = 0
        self.raw = []
-       self.DB = ""
+       self.DB = []
 
     def Parse():
         args = sys.argv[1:] 
@@ -23,9 +25,9 @@ class CLARGS:
             if i == "--DEBUG" or i == "-d":
                 self.dbg = True
             elif i.startswith("-n="):
-                self.DB = i[3:]
+                self.DB = i[3:]            
             elif i.startswith("--NEW-DB="):
-                self.DB = i[9:]
+                self.DB.append(i[9:])
             elif i == "-O0" or i == "-O1" or i == "-O2":
                 self.MODE = i[2] 
             elif i == "-h" or i == "--help":
@@ -45,7 +47,8 @@ class CLARGS:
                     sys.exit(0)
      
 
-            
+
+
 def preproc(ftuple):  
     #TODO:
     #FIXME:

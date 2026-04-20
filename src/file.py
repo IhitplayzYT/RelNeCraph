@@ -6,6 +6,8 @@ import os
 from io import StringIO
 from docx import Document
 from PyPDF2 import PdfReader
+import pdfplumber
+from bs4 import BeautifulSoup
 from enum import Enum
 class FMT(Enum):
     NULL=0
@@ -18,11 +20,20 @@ class FMT(Enum):
     LOG=7
     SQL=8
     RAW=9
+    COM=10
 
 
-supported_fmts = [".csv",".xls",".xlsx",".pdf",".txt",".html",".docx",".doc",".log",".sql"]
+supported_fmts = [".csv",".xls",".xlsx",".pdf",".txt",".html",".docx",".doc",".log",".sql",".com"]
 seperator = "<| . |>"
 def read_file(path: str) -> tuple[str | None, None | Exception, FMT]:
+    if path.startswith("http"):
+        html = requests.get(path).text
+        soup = BeautifulSoup(html, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer"]):
+            tag.decompose()
+        ret = soup.get_text()
+        return (ret,None,FMT.COM) 
+
     fmt = path.split(".")[-1]
     known = False
     ret = ""
@@ -33,11 +44,11 @@ def read_file(path: str) -> tuple[str | None, None | Exception, FMT]:
             fmt = i 
             known = True
             break
-    # Assume raw text or non existent file[check for it]
+
     if not known:
         os_p = Path(path)
-        if not os_p.exists():
-            return (path,None,FMT.NULL)
+        if os_p.exists():
+            return (path,None,FMT.RAW)
         else:
             return (None,errors.RelNeException(f"Unable to parse {path} as a valid file of type {fmt}",errors.ERRNO.E_OS),FMT.NULL) 
     
@@ -47,7 +58,6 @@ def read_file(path: str) -> tuple[str | None, None | Exception, FMT]:
         if not ret:
             return (None,errors.RelNeException(f"Unable to parse as {fmt[1:]} file",errors.ERRNO.E_FMT),FMT.NULL) 
         buf = StringIO()
-        
         return (ret,None,FMT.CSV)
     elif fmt == ".xls" or fmt == ".xlsx": 
         data = pd.ExcelFile(path)
@@ -64,12 +74,22 @@ def read_file(path: str) -> tuple[str | None, None | Exception, FMT]:
         ret += "}"
         return (ret,None,FMT.XLS)
     elif fmt == ".pdf":
-        pass
+        with pdfplumber.open(path) as pdf:
+            for i,page in enumerate(pdf.pages):
+                ret += f"Page{i}: "+page.extract_text() + seperator
+        return (ret,None,FMT.PDF)
     elif fmt == ".txt":
-        pass
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                ret += line.strip()
+        return (ret,None,FMT.TXT)
     elif fmt == ".html":
+        with open(path, "r", encoding="utf-8") as f:
+            html = f.read()
+        soup = BeautifulSoup(html, "html.parser")
+        ret = soup.get_text(separator="\n", strip=True)
+        return (ret,None,FMT.HTML)
 
-        pass
     elif fmt == ".docx" or fmt == ".doc":
         doc = Document(path)
         for x in doc.paragraphs:
@@ -91,9 +111,16 @@ def read_file(path: str) -> tuple[str | None, None | Exception, FMT]:
         return (ret,None,FMT.DOCS)
        
     elif fmt == ".log":
-        pass
-    elif fmt == ".sql":
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                ret += line.strip() + "\n"
+        return (ret,None,FMT.LOG) 
 
-        pass
+    elif fmt == ".sql":
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if not line.startswith("//"):
+                    ret += line.strip() 
+        return (ret,None,FMT.SQL) 
     else:
         return (None,errors.RelNeException(f"Unable to parse as {fmt[1:]} file",errors.ERRNO.E_FMT)) 
