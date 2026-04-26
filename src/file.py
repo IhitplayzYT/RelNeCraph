@@ -26,7 +26,7 @@ class FMT(Enum):
 supported_fmts = [".csv",".xls",".xlsx",".pdf",".txt",".html",".docx",".doc",".log",".sql",".com"]
 seperator = "<| . |>"
 def read_file(path: str) -> tuple[str | None, None | Exception, FMT]:
-    if path.startswith("http"):
+    if "http" in path:
         html = requests.get(path).text
         soup = BeautifulSoup(html, "html.parser")
         for tag in soup(["script", "style", "nav", "footer"]):

@@ -258,7 +258,4 @@ def Exec_Queries(clargs:helper.CLARGS,queries: [str]) -> [[int,str]]:
                 continue
             else:
                 ret.append([i+1,res[2:]])
-       
-
-    pass
-    
+    return ret 
