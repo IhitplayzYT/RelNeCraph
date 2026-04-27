@@ -9,23 +9,12 @@ import helper
 import errors
 import re
 import ast
+from enum import Enum
+from typing import Optional
 RELATIONALDB,VECTORDB,GRAPHDB = None,None,None
+from consts import GRAPH_PATTERNS,VECTOR_PATTERNS
 
 
-GRAPH_PATTERNS = [
-    r"\bMATCH\s*\(",          # graph match clause
-    r"\bcypher\s*\(",         # Apache AGE
-    r"\bCREATE\s+GRAPH\b",
-    r"\bEDGE\b|\bVERTEX\b",
-]
-
-VECTOR_PATTERNS = [
-    r"<->|<#>|<=>",           # distance operators
-    r"\bcosine_distance\b",
-    r"\bl2_distance\b",
-    r"\bembedding\b",
-    r"\bvector\b",
-]
 
 class SQL_VAR(Enum):
     ERR=0

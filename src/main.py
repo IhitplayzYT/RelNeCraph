@@ -3,10 +3,10 @@ import file
 import helper
 import sys
 import dbs
-STD_DB = "RelNeCraph"
+from stopwords import preproc
 
 
-if __name__ == "main":
+if __name__ == "__main__":
     clargs = helper.CLARGS()
     clargs.Parse()
     if not clargs:
@@ -20,11 +20,30 @@ if __name__ == "main":
         content,err,ftype = file.read_file(fname)
         if err:
             raise err
+        if not content:
+            continue
         if ftype != file.FMT.SQL:
-            to_update.append({filename: fname,filetype: ftype, filecontent: preproc(content)})
+            to_update.append({"filename": fname,"filetype": ftype, "filecontent": preproc(content)})
         else:
             to_exec.extend(x for x in content.split(";"))
-    ret = dbs.Exec_Queries(clargs,to_exec) 
+
+    for i in clargs.specfs:
+        ftype,fname = i[0],i[1]
+        content,err = file.read_specfile(fname,ftype)
+        if err:
+            raise err
+        if not content:
+            continue
+        if ftype != file.FMT.SQL:
+            to_update.append({"filename": fname,"filetype": ftype, "filecontent": preproc(content)})
+        else:
+            to_exec.extend(x for x in content.split(";"))
+
+
+    print([to_update])
+    print("\n\n\n")
+    print(to_exec)
+    #ret = dbs.Exec_Queries(clargs,to_exec) 
 
 
 

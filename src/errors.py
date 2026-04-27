@@ -1,4 +1,6 @@
 from enum import Enum
+from typing import Optional
+from consts import ERR_STR
 class ERRNO(Enum):
    E_HELP = 0
    E_OS = 1
@@ -9,12 +11,10 @@ class ERRNO(Enum):
    E_FMT = 6
    E_LOGIN = 7
    E_QUERY = 8
-
-ERR_STR = ["Show Help","Error occured in OS","IO error occured","File Operation Error Occured","Library Not Found",
-           "Config file not Found","Format is Unsuppported","Login Failed","Query Failed"]
+   E_HTTP = 9
 
 class RelNeException(Exception):
-    def __init__(self,message: Optional[str],errorcode: ErrorCode):
+    def __init__(self,message: Optional[str],errorcode: ERRNO):
         super().__init__(f"Error Code[{errorcode}] -> {message if message else ERR_STR[errorcode]}\n")
         self.errorcode = errorcode
 

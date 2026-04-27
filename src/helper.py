@@ -3,20 +3,25 @@ import os
 from file import supported_fmts
 import re
 from enum import Enum
-DBG_STR = f"Usage:\npython3 RelNeCraph [OPTIONS] [FILES...]\nOptions:\n\n-d, --DEBUG\nEnable debug mode\n\n-nr=<name>\nRelational database name / identifier\n\n-ng=<name>\nGraph database name / identifier\n\n-vdim=<int>\nVector dimension size (integer)\n\n-O0 | -O1 | -O2\nOptimization level\nO0 → no optimization\nO1 → basic optimization\nO2 → aggressive optimization\n\n-r=<string>\n--raw=<string>\nAdd raw input string \n\n-h, --help\nShow help message and exit\n\nArguments:\nFILES...\nInput files (must match supported formats)\n\nNotes:\n\n* Unknown flags or unsupported file formats will trigger this help.\n* Multiple -r/--raw entries are appended in order.\nSupported fiLE formats: .csv, .xls, .xlsx, .pdf, .txt, .html, .docx, .doc, .log, .sql(Will be executed), LINKS\n"
-DEFAULT_VDIM = 128
+from errors import ERRNO
+from consts import DBG_STR,DEFAULT_VDIM,STD_DB 
+from file import FMT
 class CLARGS:
     def __init__(self):
        self.dbg = False
        self.files = []
        self.MODE = 0
        self.raw = []
-       self.RDB = ""
-       self.GDB = ""
+       self.RDB = STD_DB
+       self.GDB = STD_DB
        self.vdim = DEFAULT_VDIM
+       self.specfs = []
 
     def Parse(self):
         args = sys.argv[1:] 
+        if len(args) < 2:
+            help()
+            sys.exit(ERRNO.E_HELP)
         for i in args:
             if i == "--DEBUG" or i == "-d":
                 self.dbg = True
@@ -29,22 +34,48 @@ class CLARGS:
             elif i == "-O0" or i == "-O1" or i == "-O2":
                 self.MODE = i[2] 
             elif i == "-h" or i == "--help":
-                print(DBG_STR)
-                sys.exit(0)
+                help()
+                sys.exit(ERRNO.E_HELP)
             elif i.startswith("-r="):
                 i = i[3:]
                 self.raw.append(i)
             elif i.startswith("--raw="):
                 i = i[5:]
                 self.raw.append(i)
+            elif "http" in i:
+                self.files.append(i)
+            elif i.startswith("--csv="):
+                self.specfs.append([FMT.CSV,i[6:]])
+            elif i.startswith("--xls="):
+                self.specfs.append([FMT.XLS,i[6:]])
+            elif i.startswith("--xlxs="):
+                self.specfs.append([FMT.XLS,i[7:]])
+            elif i.startswith("--pdf="):
+                self.specfs.append([FMT.PDF,i[6:]])
+            elif i.startswith("--txt="):
+                self.specfs.append([FMT.TXT,i[6:]])
+            elif i.startswith("--html="):
+                self.specfs.append([FMT.HTML,i[7:]])
+            elif i.startswith("--doc="):
+                self.specfs.append([FMT.DOCS,i[6:]])
+            elif i.startswith("--docx="):
+                self.specfs.append([FMT.DOCS,i[7:]])
+            elif i.startswith("--log="):
+                self.specfs.append([FMT.LOG,i[6:]])
+            elif i.startswith("--sql="):
+                self.specfs.append([FMT.SQL,i[6:]])
+            elif i.startswith("--link="):
+                self.specfs.append([FMT.COM,i[7:]])
             else:
                 if any(i.endswith(k) for k in supported_fmts):
                     self.files.append(i)
                 else:
-                    print(DBG_STR)
-                    sys.exit(0)
+                    print([i.endswith(k) for k in supported_fmts])
+                    help()
+                    sys.exit(ERRNO.E_HELP)
+
     def show(self):
-        print(f"CLARGS: {{\nDEBUG: {clargs.dbg}\nOP_MODE: {clargs.MODE}\nDB: Rel={clargs.RDB} VecDim={clargs.vdim} Gra={clargs.GDB}\nFILES: {clargs.files}\nRAW: {clargs.raw}\n}}")
+        print(f"CLARGS: {{\nDEBUG: {self.dbg}\nOP_MODE: {self.MODE}\nDB: Rel={self.RDB} VecDim={self.vdim} Gra={self.GDB}\nFILES: {self.files}\nRAW: {self.raw}\n}}")
 
 def help():
     print(DBG_STR)
