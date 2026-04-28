@@ -20,7 +20,31 @@ seperator = "<| . |>"
 ERR_STR = ["Show Help","Error occured in OS","IO error occured","File Operation Error Occured","Library Not Found",
            "Config file not Found","Format is Unsuppported","Login Failed","Query Failed"]
 
-DBG_STR = f"Usage: python3 RelNeCraph [OPTIONS] [FILES...]\n\nOptions:\n-d, --DEBUG\nEnable debug mode\n\n-nr=<name>\nRelational database name / identifier\n\n-ng=<name>\nGraph database name / identifier\n\n-vdim=<int>\nVector dimension size (integer)\n\n-O0 | -O1 | -O2\nOptimization levels:\nO0 → no optimization\nO1 → basic optimization\nO2 → aggressive optimization\n\n-r=<string>, --raw=<string>\nAdd raw input string \n\n-h, --help\nShow help message and exit\n\nArguments:\nFILES...\nInput files (must match supported formats)\n\nNotes:\n\n* Unknown flags or unsupported file formats will trigger this help.\n* Multiple -r/--raw entries are appended in order.\n* Supported File Formats: .csv, .xls, .xlsx, .pdf, .txt, .html, .docx, .doc, .log, .sql(Will be executed), LINKS\n"
+DBG_STR = """Usage: python3 RelNeCraph [OPTIONS] [FILES...]\n
+Options:\n-d, --DEBUG\nEnable debug mode\n
+-nr=<name>\nRelational database name / identifier\n
+-ng=<name>\nGraph database name / identifier\n
+-vdim=<int>\nVector dimension size (integer)\n
+-O0 | -O1 | -O2\nOptimization levels:\nO0 → no optimization\nO1 → basic optimization\nO2 → aggressive optimization\n
+-r=<string>, --raw=<string>\nAdd raw input string \n
+--csv=<string>\nAdd a csv file\n
+--xls=<string>\nAdd a xls file\n
+--xlsx=<string>\nAdd a xlsx file\n
+--pdf=<string>\nAdd a pdf file\n
+--txt=<string>\nAdd a txt file\n
+--html=<string>\nAdd a html file\n
+--doc=<string>\nAdd a doc file\n
+--docx=<string>\nAdd a docx file\n
+--log=<string>\nAdd a log file\n
+--sql=<string>\nAdd a sql file\n
+--link=<string>\nAdd a link to a valid page\n
+-h, --help\nShow help message and exit\n
+Arguments:\nFILES...\nInput files (must match supported formats)\n
+Notes:
+* Unknown flags or unsupported file formats will trigger this help.
+* Multiple -r/--raw entries are appended in order.
+* Supported File Formats: .csv, .xls, .xlsx, .pdf, .txt, .html, .docx, .doc, .log, .sql(Will be executed), LINKS.
+* Using --fmt type of options assumes that you are responsible for providing the correct type of file, failure might lead to tokens wastage or malicious queries.\n"""
 
 headers = {
     "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",

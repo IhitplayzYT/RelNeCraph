@@ -39,11 +39,8 @@ if __name__ == "__main__":
         else:
             to_exec.extend(x for x in content.split(";"))
 
-
-    print([to_update])
-    print("\n\n\n")
-    print(to_exec)
-    #ret = dbs.Exec_Queries(clargs,to_exec) 
+    ret = dbs.Exec_Queries(clargs,to_exec) 
+    
 
 
 

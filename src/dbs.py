@@ -159,10 +159,7 @@ def get_vec_param(query: str) -> []:
     return [op,vectors,ids,query_vec,k,meta]
 
 
-
-
-
-def exec_vquery(query:str,  op: str, vectors=None, ids=None, query_vec=None, k=5, meta=None):
+def exec_vquery(query:str):
     """  Please change the params to work with the entire detail encoded as a string"""
     query = "".join(filter(lambda x: x != ' ' and x != '\n',query.strip()))
 # Sample: insert|[[0.1]*128,[0.2]*128]|[1,2]|[0.1]*128|3|[{"name":"a"},{"name":"b"}]
@@ -247,4 +244,38 @@ def Exec_Queries(clargs:helper.CLARGS,queries: [str]) -> [[int,str]]:
                 continue
             else:
                 ret.append([i+1,res[2:]])
-    return ret 
+
+    
+    return ret
+
+
+def execute_query(query:str,type_query:SQL_VAR) -> str:
+    if type_query == SQL_VAR.REL:
+       return exec_rquery(query=query)
+    elif type_query == SQL_VAR.GRAPH:
+        return exec_gquery(query=query)
+    elif type_query == SQL_VAR.VEC:
+        return exec_vquery(query=query)
+    else:
+        return "Err"
+
+
+# // A: exact match
+# MATCH (root:Node {text: $term})
+# 
+# // B: local expansion
+# OPTIONAL MATCH p = (root)-[*1..2]-(local)
+# WITH root, collect(DISTINCT local) AS local_nodes
+# 
+# // C: vector search
+# CALL db.index.vector.queryNodes("node_vec", $topN, $embedding)
+# YIELD node AS candidate, score
+# 
+# // D: filter out connected
+# WHERE NOT (root)-[*1..2]-(candidate)
+#   AND candidate <> root
+# 
+# WITH root, local_nodes,
+#      collect(candidate)[0..$k_vec] AS global_nodes
+# 
+# RETURN root, local_nodes, global_nodes; 
