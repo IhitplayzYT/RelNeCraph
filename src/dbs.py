@@ -14,15 +14,11 @@ from typing import Optional
 RELATIONALDB,VECTORDB,GRAPHDB = None,None,None
 from consts import GRAPH_PATTERNS,VECTOR_PATTERNS
 
-
-
 class SQL_VAR(Enum):
     ERR=0
     REL=1
     GRAPH=2
     VEC=3
-
-
 
 def classify_sql(query:str) -> SQL_VAR:
     q = query.lower()
@@ -34,17 +30,13 @@ def classify_sql(query:str) -> SQL_VAR:
             return SQL_VAR.VEC
     return SQL_VAR.REL
 
-
 def Init_DB(rdb,dim):
     load_dotenv()
-
     ru,rp,rh,rpo =  os.getenv("RDB_USER"),os.getenv("RDB_PASS"), os.getenv("RDB_HOST"),os.getenv("RDB_PORT")
     if not ru or not rp:
         raise errors.RelNeException(errors.ERRNO.E_LOGIN,"Username and Password not provided for RelationalDB!")
     r_conn = Init_Rel_DB(ru,rp,rh,rpo,rdb)
-
     v_conn = Init_Vec_DB(dim)
-
     gu,gp,gh,gpo =  os.getenv("GDB_USER"),os.getenv("GDB_PASS"), os.getenv("GDB_HOST"),os.getenv("GDB_PORT")  
     if not gu or not gp:
         raise errors.RelNeException(errors.ERRNO.E_LOGIN,"Username and Password not provided for GraphDB!")
@@ -123,12 +115,10 @@ def exec_gquery(query: str):
     except Neo4jError as e:
         return f"Err:{e}"
 
-
 def eval_shortform(expr):
     m = re.match(r"\[(.+)\]\*(\d+)", expr)
     if not m:
         return None
-
     val = float(m.group(1))
     count = int(m.group(2))
     return [val] * count
@@ -168,14 +158,11 @@ def exec_vquery(query:str):
         op,vectors_s,ids_s,query_vec_s,k,meta = get_vec_param(query)
         if op == None:
             return "Err" 
-
         # ---- SEARCH (SELECT equivalent) ----
         if op == "search":
             if query_vec is None:
                 return "Err"
-
             D, I = VECTORDB.search(np.array([query_vec]).astype("float32"), k)
-
             for dist, idx in zip(D[0], I[0]):
                 if idx == -1:
                     continue
